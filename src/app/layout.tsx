@@ -34,7 +34,6 @@ export default function RootLayout({
         <Providers>
           {children}
           <SonnerToaster richColors theme='dark' position='top-right' />{" "}
-          {/* Configura Sonner para tema dark */}
         </Providers>
       </body>
     </html>
