@@ -2,8 +2,8 @@
 import { UserRole } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { authOptions } from "../auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/lib/auth-options";
 
 // GET: Listar moradores e síndicos ativos
 export async function GET() {

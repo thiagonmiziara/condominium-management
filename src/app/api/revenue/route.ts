@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma"; // Seu singleton do Prisma Client
+import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // Suas opções do NextAuth
-import { UserRole } from "@prisma/client"; // Enum de Roles
+import { UserRole } from "@prisma/client";
+import { authOptions } from "@/lib/auth-options";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
