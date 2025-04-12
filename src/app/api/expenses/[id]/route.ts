@@ -1,22 +1,20 @@
-import { UserRole } from "@prisma/client";
-import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
-import { authOptions } from "@/lib/auth-options";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth/next";
+import { UserRole } from "@prisma/client";
+import { authOptions } from "@/lib/auth-options";
 
-interface ExpenseParams {
-  params: { id: string };
-}
-
-export async function GET(_request: Request, { params }: ExpenseParams) {
-  // Nome padrão GET para a rota de ID
-  // Lógica para buscar uma despesa pelo ID (acessível a todos logados)
+export async function GET(
+  _request: NextRequest,
+  context: { params: { id: string } }
+) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
   try {
-    const { id } = params;
+    const { id } = context.params;
     const expense = await prisma.expense.findUnique({ where: { id } });
     if (!expense) {
       return NextResponse.json(
@@ -34,67 +32,71 @@ export async function GET(_request: Request, { params }: ExpenseParams) {
   }
 }
 
-export async function PUT(request: Request, { params }: ExpenseParams) {
-  // Nome padrão PUT para a rota de ID
-  // Lógica para atualizar uma despesa pelo ID (acessível apenas pelo SINDICO)
+// PUT
+export async function PUT(
+  request: NextRequest,
+  context: { params: { id: string } }
+) {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== UserRole.SINDICO) {
     return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
   }
+
   try {
-    const { id } = params;
+    const { id } = context.params;
     const data = await request.json();
-    // TODO: Adicionar validação de dados (ex: com Zod)
-    if (!data.description || !data.value || !data.date) {
-      // Categoria é opcional
-      return NextResponse.json(
-        {
-          error: "Dados incompletos (Descrição, Valor, Data são obrigatórios)",
-        },
-        { status: 400 }
-      );
+
+    if (!data.description || data.value === undefined || !data.date) {
+      return NextResponse.json({ error: "Dados incompletos" }, { status: 400 });
     }
-    const updatedExpense = await prisma.expense.update({
+
+    if (typeof data.value !== "number" || data.value < 0) {
+      return NextResponse.json({ error: "Valor inválido" }, { status: 400 });
+    }
+
+    const updated = await prisma.expense.update({
       where: { id },
       data: {
         description: data.description,
-        value: parseFloat(data.value),
+        value: data.value,
         date: new Date(data.date),
-        category: data.category, // Atualiza categoria
+        category: data.category,
       },
     });
-    return NextResponse.json(updatedExpense);
+
+    return NextResponse.json(updated);
   } catch (error) {
-    // TODO: Tratar erro caso ID não exista (P2025)
-    console.error("Erro ao atualizar despesa:", error);
-    return NextResponse.json(
-      { error: "Erro interno do servidor" },
-      { status: 500 }
-    );
+    if ((error as any)?.code === "P2025") {
+      return NextResponse.json(
+        { error: "Despesa não encontrada" },
+        { status: 404 }
+      );
+    }
+    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
   }
 }
 
-export async function DELETE(_request: Request, { params }: ExpenseParams) {
-  // Nome padrão DELETE para a rota de ID
-  // Lógica para deletar uma despesa pelo ID (acessível apenas pelo SINDICO)
+// DELETE
+export async function DELETE(
+  _request: NextRequest,
+  context: { params: { id: string } }
+) {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== UserRole.SINDICO) {
     return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
   }
+
   try {
-    const { id } = params;
+    const { id } = context.params;
     await prisma.expense.delete({ where: { id } });
-    return NextResponse.json(
-      { message: "Despesa deletada com sucesso" },
-      { status: 200 }
-    );
-    // Ou retornar status 204 No Content: return new NextResponse(null, { status: 204 });
+    return NextResponse.json({ message: "Despesa deletada com sucesso" });
   } catch (error) {
-    // TODO: Tratar erro caso ID não exista (P2025)
-    console.error("Erro ao deletar despesa:", error);
-    return NextResponse.json(
-      { error: "Erro interno do servidor" },
-      { status: 500 }
-    );
+    if ((error as any)?.code === "P2025") {
+      return NextResponse.json(
+        { error: "Despesa não encontrada" },
+        { status: 404 }
+      );
+    }
+    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
   }
 }
