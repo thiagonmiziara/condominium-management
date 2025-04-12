@@ -53,26 +53,29 @@ export default function ExpenseForm({
 }: ExpenseFormProps) {
   const isEditing = !!expenseData;
 
-  const form = useForm<ExpenseFormValues>({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-
     defaultValues: {
-      description: "",
-      category: "",
-      value: 0,
-      date: formatDateForInput(new Date()),
+      description: expenseData?.description ?? "",
+      category: expenseData?.category ?? "",
+      value: expenseData?.value ?? 0,
+      date: expenseData
+        ? formatDateForInput(expenseData.date)
+        : formatDateForInput(new Date()),
     },
   });
 
   useEffect(() => {
-    if (isEditing && expenseData) {
-      form.reset({
-        description: expenseData.description,
-        category: expenseData.category ?? "",
-        value: expenseData.value,
-        date: formatDateForInput(expenseData.date),
-      });
-    } else if (!isEditing) {
+    if (isEditing) {
+      if (expenseData) {
+        form.reset({
+          description: expenseData.description,
+          category: expenseData.category ?? "",
+          value: expenseData.value,
+          date: formatDateForInput(expenseData.date),
+        });
+      }
+    } else {
       form.reset({
         description: "",
         category: "",
