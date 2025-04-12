@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma"; // Seu singleton do Prisma Client
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // Suas opções do NextAuth
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { UserRole } from "@prisma/client"; // Enum de Roles
 
 interface RevenueParams {

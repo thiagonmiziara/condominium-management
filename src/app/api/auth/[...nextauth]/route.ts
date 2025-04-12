@@ -5,7 +5,7 @@ import { UserRole } from "@prisma/client";
 import nodemailer from "nodemailer";
 import { prisma } from "@/lib/prisma";
 
-const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
 
   // Configura o provedor de Email
