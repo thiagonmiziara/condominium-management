@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // Mude para postgresql
+  url      = env("DATABASE_URL")
+}
+
+// Defina seus modelos aqui
+
+// Exemplo de Modelo de Usuário (para NextAuth)
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          UserRole  @default(MORADOR) // Adiciona o campo de role
+  apartment     String? // Apartamento do morador
+  accounts      Account[]
+  sessions      Session[]
+  // Relacionamentos com outros modelos (se necessário)
+  // posts         Post[]    // Se o usuário for autor de posts
+  Post          Post[]
+  Resident      Resident?
+  isActive      Boolean   @default(true)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Enum para Roles de Usuário
+enum UserRole {
+  SINDICO
+  MORADOR
+}
+
+// Modelo para Receitas
+model Revenue {
+  id          String   @id @default(cuid())
+  description String
+  value       Float
+  date        DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Modelo para Despesas
+model Expense {
+  id          String   @id @default(cuid())
+  description String
+  category    String?
+  value       Float
+  date        DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Modelo para Posts do Mural
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @db.Text
+  authorId  String // Relaciona com o User (Síndico)
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Resident {
+  id        String   @id @default(cuid())
+  name      String // Pode vir do User relacionado
+  apartment String
+  contact   String?
+  userId    String?  @unique // Link opcional para a conta User
+  user      User?    @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
