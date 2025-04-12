@@ -5,7 +5,7 @@ import { UserRole } from "@prisma/client"; // Enum de Roles
 import { authOptions } from "@/lib/auth-options";
 
 interface RevenueParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function GET(_request: Request, { params }: RevenueParams) {
@@ -15,7 +15,7 @@ export async function GET(_request: Request, { params }: RevenueParams) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
   try {
-    const { id } = params;
+    const { id } = await params;
     const revenue = await prisma.revenue.findUnique({ where: { id } });
     if (!revenue) {
       return NextResponse.json(
@@ -40,7 +40,7 @@ export async function PUT(request: Request, { params }: RevenueParams) {
     return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
   }
   try {
-    const { id } = params;
+    const { id } = await params;
     const data = await request.json();
     // TODO: Adicionar validação de dados (ex: com Zod)
     const updatedRevenue = await prisma.revenue.update({
@@ -69,7 +69,7 @@ export async function DELETE(_request: Request, { params }: RevenueParams) {
     return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
   }
   try {
-    const { id } = params;
+    const { id } = await params;
     await prisma.revenue.delete({ where: { id } });
     return NextResponse.json(
       { message: "Receita deletada com sucesso" },

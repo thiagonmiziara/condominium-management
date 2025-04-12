@@ -7,7 +7,7 @@ import { authOptions } from "@/lib/auth-options";
 
 export async function GET(
   request: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   const session = await getServerSession(authOptions);
   // Apenas SINDICO pode buscar dados de outros usuários por ID
@@ -15,7 +15,7 @@ export async function GET(
     return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
   }
   try {
-    const { userId } = params;
+    const { userId } = await params;
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -46,7 +46,7 @@ export async function GET(
 // PUT: Atualizar dados do usuário (nome, apartamento, role)
 export async function PUT(
   request: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   const session = await getServerSession(authOptions);
   // Apenas SINDICO pode editar outros usuários
@@ -54,7 +54,7 @@ export async function PUT(
     return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
   }
   try {
-    const { userId } = params;
+    const { userId } = await params;
     const data = await request.json();
 
     // ** Segurança: Impedir que síndico altere o próprio email ou role por esta rota? **
@@ -146,14 +146,14 @@ export async function PUT(
 // PATCH: Desativar morador OU síndico (exceto a si mesmo)
 export async function PATCH(
   request: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== UserRole.SINDICO) {
     return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
   }
   try {
-    const { userId } = params;
+    const { userId } = await params;
     // Impede síndico de desativar a si mesmo
     if (session.user.id === userId) {
       return NextResponse.json(

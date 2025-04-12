@@ -5,17 +5,18 @@ import { UserRole } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
 
-type Params = { params: { id: string } };
-
-// GET
-export async function GET(_request: NextRequest, { params }: Params) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
+  const { id } = await params;
   try {
     const expense = await prisma.expense.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
     if (!expense) {
       return NextResponse.json(
@@ -32,11 +33,15 @@ export async function GET(_request: NextRequest, { params }: Params) {
 }
 
 // PUT
-export async function PUT(request: NextRequest, { params }: Params) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== UserRole.SINDICO) {
     return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
   }
+  const { id } = await params;
   try {
     const data = await request.json();
 
@@ -48,7 +53,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
     }
 
     const updated = await prisma.expense.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         description: data.description,
         value: data.value,
@@ -73,13 +78,17 @@ export async function PUT(request: NextRequest, { params }: Params) {
 }
 
 // DELETE
-export async function DELETE(_request: NextRequest, { params }: Params) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== UserRole.SINDICO) {
     return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
   }
+  const { id } = await params;
   try {
-    await prisma.expense.delete({ where: { id: params.id } });
+    await prisma.expense.delete({ where: { id: id } });
     return NextResponse.json({ message: "Despesa deletada com sucesso" });
   } catch (error: any) {
     if (error.code === "P2025") {

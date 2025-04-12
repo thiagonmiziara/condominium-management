@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
 
 interface PostParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function GET(request: Request, { params }: PostParams) {
@@ -16,7 +16,7 @@ export async function GET(request: Request, { params }: PostParams) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
   try {
-    const { id } = params;
+    const { id } = await params;
     const post = await prisma.post.findUnique({
       where: { id },
       include: { author: { select: { name: true } } }, // Inclui nome do autor
@@ -45,7 +45,7 @@ export async function PUT(request: Request, { params }: PostParams) {
     return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
   }
   try {
-    const { id } = params;
+    const { id } = await params;
     const data = await request.json();
     // TODO: Adicionar validação de dados (ex: com Zod)
     if (!data.title || !data.content) {
@@ -88,7 +88,7 @@ export async function DELETE(request: Request, { params }: PostParams) {
     return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
   }
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Opcional: Verificar se o síndico logado é o autor do post antes de permitir a exclusão
     // const post = await prisma.post.findUnique({ where: { id } });
