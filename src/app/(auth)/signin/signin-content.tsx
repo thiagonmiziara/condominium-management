@@ -117,7 +117,7 @@ export default function SignInContent() {
         <CardHeader className='text-center space-y-2 pt-8'>
           <Building2 className='mx-auto h-8 w-8 text-cyan-500' />
           <CardTitle className='text-2xl font-semibold text-cyan-400 tracking-tight'>
-            Gestão Condomínio
+            Gestão do condomínio edifício José Cunha
           </CardTitle>
           <CardDescription className='text-zinc-400 !mt-1'>
             {emailSent

@@ -66,7 +66,7 @@ export function SidebarContent({ onLinkClick }: SidebarContentProps) {
   return (
     <div className='flex flex-col h-full relative'>
       <h1 className='text-xl font-bold mb-6 text-center text-cyan-400 tracking-tight pt-8'>
-        Gestão Condomínio
+        Edifício José Cunha
       </h1>
       {/* Navegação */}
       <nav className='flex-grow space-y-1 px-4'>

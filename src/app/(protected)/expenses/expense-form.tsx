@@ -211,7 +211,11 @@ export default function ExpenseForm({
             Cancelar
           </Button>
 
-          <Button type='submit' disabled={form.formState.isSubmitting}>
+          <Button
+            type='submit'
+            disabled={form.formState.isSubmitting}
+            className='bg-cyan-600 hover:bg-cyan-700 text-white font-semibold'
+          >
             {form.formState.isSubmitting
               ? "Salvando..."
               : isEditing

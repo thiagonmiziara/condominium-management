@@ -181,7 +181,7 @@ export default function BulletinPage() {
                   {post.title}
                 </CardTitle>
 
-                <CardDescription className='text-xs text-zinc-400 pt-1'>
+                <CardDescription className='text-xs text-cyan-400 pt-1'>
                   Postado por {post.author?.name || "Síndico"} em{" "}
                   {formatDate(post.createdAt)}{" "}
                 </CardDescription>
