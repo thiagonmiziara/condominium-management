@@ -237,6 +237,7 @@ export default function ResidentForm({
             variant='ghost'
             onClick={onCancel}
             disabled={form.formState.isSubmitting}
+            className='text-zinc-300 hover:text-cyan-400 hover:bg-zinc-800'
           >
             Cancelar
           </Button>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,10 +16,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Building2 } from "lucide-react";
+import { Building2, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function SignInContent() {
+export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
@@ -63,7 +64,6 @@ export default function SignInContent() {
 
       if (result?.error) {
         console.error("SignIn Error:", result.error);
-
         if (
           ![
             "EmailSendError",
@@ -105,7 +105,17 @@ export default function SignInContent() {
   }
 
   return (
-    <div className='flex items-center justify-center min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-900 to-black p-4'>
+    <div className='flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-900 to-black p-4'>
+      <div className='w-full max-w-sm sm:max-w-lg mb-6'>
+        <Link
+          href='/'
+          className='inline-flex items-center text-sm text-zinc-400 hover:text-cyan-400 transition-colors group'
+        >
+          <ArrowLeft className='mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1' />
+          Voltar para a página inicial
+        </Link>
+      </div>
+
       <Card
         className={cn(
           "w-full max-w-sm sm:max-w-lg",
@@ -164,6 +174,13 @@ export default function SignInContent() {
           </form>
         )}
       </Card>
+
+      <div className='w-full max-w-sm sm:max-w-lg mt-4 text-center'>
+        <p className='text-xs text-zinc-500'>
+          Problemas para acessar? Entre em contato com o administrador do seu
+          condomínio.
+        </p>
+      </div>
     </div>
   );
 }

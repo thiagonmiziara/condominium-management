@@ -60,7 +60,7 @@ export default function DashboardClient({
   return (
     <>
       {/* Gráfico de BARRAS (Receita x Despesa Mensal) com cores explícitas */}
-      <Card className='lg:col-span-1 bg-zinc-900 border-zinc-800'>
+      <Card className='lg:col-span-1 bg-zinc-800 border-zinc-700'>
         <CardHeader>
           <CardTitle className='text-base font-semibold text-cyan-400'>
             Receita vs Despesa Mensal
@@ -132,7 +132,7 @@ export default function DashboardClient({
       </Card>
 
       {/* Gráfico de Donut (Despesas por Categoria) com cores explícitas (tons de vermelho) */}
-      <Card className='lg:col-span-1 flex flex-col bg-zinc-900 border-zinc-800'>
+      <Card className='lg:col-span-1 flex flex-col bg-zinc-800 border-zinc-700'>
         <CardHeader className='items-center pb-0'>
           <CardTitle className='text-base font-semibold text-cyan-400'>
             Despesas por Categoria

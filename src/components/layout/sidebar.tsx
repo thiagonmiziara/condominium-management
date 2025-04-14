@@ -7,7 +7,7 @@ export default function Sidebar() {
     <aside
       className={cn(
         "hidden md:flex md:flex-col md:w-64",
-        "bg-gradient-to-b from-zinc-900 to-zinc-950",
+        "bg-gradient-to-b from-zinc-900 to-zinc-800",
         "border-r border-zinc-800",
         "h-screen sticky top-0"
       )}
