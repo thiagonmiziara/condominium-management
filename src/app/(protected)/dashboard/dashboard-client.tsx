@@ -59,7 +59,6 @@ export default function DashboardClient({
 
   return (
     <>
-      {/* Gráfico de BARRAS (Receita x Despesa Mensal) com cores explícitas */}
       <Card className='lg:col-span-1 bg-zinc-800 border-zinc-700'>
         <CardHeader>
           <CardTitle className='text-base font-semibold text-cyan-400'>
@@ -72,7 +71,6 @@ export default function DashboardClient({
         <CardContent className='pl-2 pr-4'>
           <ChartContainer config={{}} className='h-[300px] w-full'>
             <ResponsiveContainer width='100%' height='100%'>
-              {/* Substitui LineChart por BarChart */}
               <BarChart
                 data={monthlyData}
                 margin={{ top: 5, right: 5, left: -20, bottom: 5 }}
@@ -112,7 +110,7 @@ export default function DashboardClient({
                     <span style={{ color: axisColor }}>{value}</span>
                   )}
                 />
-                {/* Barras com cores explícitas e cantos arredondados */}
+
                 <Bar
                   dataKey='Receita'
                   fill={barColors.receita}
@@ -131,7 +129,6 @@ export default function DashboardClient({
         </CardContent>
       </Card>
 
-      {/* Gráfico de Donut (Despesas por Categoria) com cores explícitas (tons de vermelho) */}
       <Card className='lg:col-span-1 flex flex-col bg-zinc-800 border-zinc-700'>
         <CardHeader className='items-center pb-0'>
           <CardTitle className='text-base font-semibold text-cyan-400'>
@@ -170,7 +167,6 @@ export default function DashboardClient({
                   strokeWidth={3}
                   stroke={"#18181b"}
                 >
-                  {/* Usa as cores explícitas (tons de vermelho) passadas via 'fill' */}
                   {pieChartData.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
