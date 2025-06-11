@@ -70,15 +70,27 @@ export function SidebarContent({ onLinkClick }: SidebarContentProps) {
       </h1>
       {/* Navegação */}
       <nav className='flex-grow space-y-1 px-4'>
-        <NavLink href='/dashboard' icon={LayoutDashboard} onClick={onLinkClick}>
-          Dashboard
-        </NavLink>
-        <NavLink href='/revenue' icon={CircleDollarSign} onClick={onLinkClick}>
-          Receitas
-        </NavLink>
-        <NavLink href='/expenses' icon={CreditCard} onClick={onLinkClick}>
-          Despesas
-        </NavLink>
+        {userRole === UserRole.SINDICO && (
+          <>
+            <NavLink
+              href='/dashboard'
+              icon={LayoutDashboard}
+              onClick={onLinkClick}
+            >
+              Dashboard
+            </NavLink>
+            <NavLink
+              href='/revenue'
+              icon={CircleDollarSign}
+              onClick={onLinkClick}
+            >
+              Receitas
+            </NavLink>
+            <NavLink href='/expenses' icon={CreditCard} onClick={onLinkClick}>
+              Despesas
+            </NavLink>
+          </>
+        )}
         <NavLink href='/bulletin' icon={Megaphone} onClick={onLinkClick}>
           Mural
         </NavLink>

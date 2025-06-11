@@ -3,6 +3,10 @@ import DashboardClient from "./dashboard-client"; // Componente cliente para gr√
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, cn } from "@/lib/utils"; // Importa cn tamb√©m
 import { CircleDollarSign, CreditCard, Activity } from "lucide-react"; // Icons
+import { getServerSession } from "next-auth/next";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth-options";
+import { UserRole } from "@prisma/client";
 
 async function getDashboardData() {
   try {
@@ -105,6 +109,12 @@ async function getDashboardData() {
 }
 
 export default async function DashboardPage() {
+  const session = await getServerSession(authOptions);
+
+  if (!session || session.user.role !== UserRole.SINDICO) {
+    redirect("/bulletin");
+  }
+
   const data = await getDashboardData();
 
   if (data.error) {
