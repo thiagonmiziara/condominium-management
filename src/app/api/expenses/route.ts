@@ -3,16 +3,33 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
-export async function GET() {
-  // Nome padrão GET para a rota base
-  // Lógica para buscar todas as despesas (acessível a todos logados)
+export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
+
+  const { searchParams } = new URL(request.url);
+  const startDateParam = searchParams.get("startDate");
+  const endDateParam = searchParams.get("endDate");
+
+  const whereClause: Prisma.ExpenseWhereInput = {};
+
+  if (startDateParam || endDateParam) {
+    whereClause.date = {};
+    if (startDateParam) {
+      whereClause.date.gte = new Date(startDateParam);
+    }
+    if (endDateParam) {
+      whereClause.date.lte = new Date(endDateParam);
+    }
+  }
+
   try {
     const expenses = await prisma.expense.findMany({
+      where: whereClause,
       orderBy: { date: "desc" },
     });
     return NextResponse.json(expenses);
@@ -26,8 +43,6 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  // Nome padrão POST para a rota base
-  // Lógica para criar uma nova despesa (acessível apenas pelo SINDICO)
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== UserRole.SINDICO) {
     return NextResponse.json({ error: "Acesso negado" }, { status: 403 });

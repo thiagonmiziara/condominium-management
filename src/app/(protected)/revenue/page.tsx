@@ -23,6 +23,8 @@ import { UserRole } from "@prisma/client";
 import { PlusCircle, Pencil, Trash2, Download, Loader2 } from "lucide-react"; // Added Download and Loader2 icons
 import { toast } from "sonner";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { DateRangePicker } from "@/components/date-range-picker";
+import { DateRange } from "react-day-picker";
 import RevenueForm from "./revenue-form";
 import {
   Dialog,
@@ -58,23 +60,45 @@ interface Revenue {
 export default function RevenuePage() {
   const { data: session } = useSession();
   const [revenues, setRevenues] = useState<Revenue[]>([]);
-  // State for data fetching
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
-  // State for form
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingRevenue, setEditingRevenue] = useState<Revenue | null>(null);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
+    const today = new Date();
+    const startOfCurrentMonth = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      1
+    );
+    const endOfCurrentMonth = new Date(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      0
+    );
+    return { from: startOfCurrentMonth, to: endOfCurrentMonth };
+  });
 
   const isSindico = session?.user?.role === UserRole.SINDICO;
 
   const { exportToPDF: exportRevenuesToPDF, isExporting } =
     useExportToPDF<Revenue>();
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (range: DateRange | undefined) => {
     setIsLoadingData(true);
     setFetchError(null);
     try {
-      const response = await fetch("/api/revenue");
+      const params = new URLSearchParams();
+      if (range?.from) {
+        params.append("startDate", range.from.toISOString());
+      }
+      if (range?.to) {
+        params.append("endDate", range.to.toISOString());
+      }
+      const queryString = params.toString();
+      const response = await fetch(
+        `/api/revenue${queryString ? `?${queryString}` : ""}`
+      );
       if (!response.ok) throw new Error("Falha ao buscar receitas");
       const data = await response.json();
       setRevenues(data);
@@ -88,8 +112,12 @@ export default function RevenuePage() {
   }, []);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchData(dateRange);
+  }, [dateRange, fetchData]);
+
+  const handleDateChange = (range: DateRange | undefined) => {
+    setDateRange(range);
+  };
 
   const handleAdd = () => {
     setEditingRevenue(null);
@@ -109,7 +137,7 @@ export default function RevenuePage() {
         throw new Error(errorData.error || "Falha ao deletar receita");
       }
       toast.success("Receita deletada com sucesso.");
-      fetchData();
+      fetchData(dateRange); // Passa o dateRange atual
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Erro ao deletar";
       console.error("Erro ao deletar:", err);
@@ -121,7 +149,7 @@ export default function RevenuePage() {
   const handleFormSaveSuccess = () => {
     setIsFormOpen(false);
     setEditingRevenue(null);
-    fetchData();
+    fetchData(dateRange);
   };
 
   const handleExportClick = () => {
@@ -206,6 +234,10 @@ export default function RevenuePage() {
           Gerenciar Receitas
         </h2>
         <div className='flex flex-col sm:flex-row gap-2 w-full sm:w-auto'>
+          <DateRangePicker
+            onDateChange={handleDateChange}
+            initialDateRange={dateRange}
+          />
           {isSindico && (
             <Dialog
               open={isFormOpen}
@@ -271,7 +303,7 @@ export default function RevenuePage() {
         <div className='bg-destructive/10 border border-destructive/50 text-destructive p-4 rounded-md text-center'>
           <p>Erro ao carregar dados: {fetchError}</p>
           <Button
-            onClick={fetchData}
+            onClick={() => fetchData(dateRange)}
             variant='destructive'
             size='sm'
             className='mt-2'

@@ -1,16 +1,34 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { UserRole } from "@prisma/client";
+import { UserRole, Prisma } from "@prisma/client";
 import { authOptions } from "@/lib/auth-options";
 
-export async function GET() {
+export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
+
+  const { searchParams } = new URL(request.url);
+  const startDateParam = searchParams.get("startDate");
+  const endDateParam = searchParams.get("endDate");
+
+  const whereClause: Prisma.RevenueWhereInput = {};
+
+  if (startDateParam || endDateParam) {
+    whereClause.date = {};
+    if (startDateParam) {
+      whereClause.date.gte = new Date(startDateParam);
+    }
+    if (endDateParam) {
+      whereClause.date.lte = new Date(endDateParam);
+    }
+  }
+
   try {
     const revenues = await prisma.revenue.findMany({
+      where: whereClause,
       orderBy: { date: "desc" },
     });
     return NextResponse.json(revenues);
